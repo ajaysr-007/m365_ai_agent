@@ -1,0 +1,138 @@
+openapi: 3.0.1
+info:
+  title: Bot IQ Core Admin API
+  description: APIs for admin tasks including user validation and transaction log summarization.
+  version: 1.0.0
+servers:
+  # IMPORTANT: Update this URL to the actual base URL where your Azure Functions are hosted.
+  # If running locally, it is usually http://localhost:7071/api
+  - url: https://botiq-flexapp-core-uat-h7eafubph2b9dzff.centralindia-01.azurewebsites.net/api
+paths:
+  /validate_user_admin_api:
+    post:
+      summary: Validate user credentials
+      description: Validates a user's credentials and returns an authorize_token.
+      operationId: validateUser
+      parameters:
+        - name: request_type
+          in: header
+          required: true
+          schema:
+            type: string
+            default: application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: The ID of the user.
+                password:
+                  type: string
+                  description: The password of the user.
+              required:
+                - user_id
+                - password
+      responses:
+        '200':
+          description: Successful validation response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                  status_description:
+                    type: string
+                  error_message:
+                    type: string
+                  response_body:
+                    type: object
+                    properties:
+                      authorize_token:
+                        type: string
+
+  /summarize_transaction_log_admin_api:
+    post:
+      summary: Summarize transaction logs
+      description: Retrieves a summary of transaction log details with optional filters and grouping.
+      operationId: summarizeTransactionLog
+      security:
+        # This tells the agent that this endpoint requires the token defined in components
+        - authorize_token_auth: []
+      parameters:
+        - name: request_type
+          in: header
+          required: true
+          schema:
+            type: string
+            default: application/json
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters:
+                  type: object
+                  properties:
+                    org_name:
+                      type: string
+                    date_range:
+                      type: object
+                      properties:
+                        start:
+                          type: string
+                          example: "2023-10-01 00:00:00"
+                        end:
+                          type: string
+                          example: "2023-10-07 23:59:59"
+                    api_names:
+                      type: array
+                      items:
+                        type: string
+                    keys:
+                      type: array
+                      items:
+                        type: string
+                    statuses:
+                      type: array
+                      items:
+                        type: string
+                    request_models:
+                      type: array
+                      items:
+                        type: string
+                group_by:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Successful summary response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                  status_description:
+                    type: string
+                  error_message:
+                    type: string
+                  response_body:
+                    type: object
+
+components:
+  securitySchemes:
+    authorize_token_auth:
+      type: apiKey
+      in: header
+      name: authorize_token
+      description: "JWT Token obtained from validate_user_admin_api"
