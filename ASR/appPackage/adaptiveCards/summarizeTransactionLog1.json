@@ -1,0 +1,22 @@
+{
+    "type": "AdaptiveCard",
+    "$schema": "https://adaptivecards.io/schemas/adaptive-card.json",
+    "version": "1.5",
+    "body": [
+        {
+            "type": "TextBlock",
+            "text": "status_code: ${if(status_code, status_code, 'N/A')}",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "status_description: ${if(status_description, status_description, 'N/A')}",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "text": "error_message: ${if(error_message, error_message, 'N/A')}",
+            "wrap": true
+        }
+    ]
+}

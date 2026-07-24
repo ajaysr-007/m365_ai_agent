@@ -1,0 +1,103 @@
+openapi: 3.0.4
+info:
+  title: Bot IQ Core Admin API - Subset - Subset
+  description: APIs for admin tasks including user validation and transaction log summarization.
+  version: 1.0.0
+servers:
+  - url: https://botiq-flexapp-core-uat-h7eafubph2b9dzff.centralindia-01.azurewebsites.net/api
+paths:
+  /summarize_transaction_log_admin_api:
+    post:
+      summary: Summarize transaction logs
+      description: Retrieves a summary of transaction log details with optional filters and grouping.
+      operationId: summarizeTransactionLog
+      parameters:
+        - name: request_type
+          in: header
+          required: true
+          schema:
+            type: string
+            default: application/json
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                filters:
+                  required:
+                    - org_name
+                  type: object
+                  properties:
+                    org_name:
+                      type: string
+                      description: The name of the organization. This is REQUIRED for every request.
+                    date_range:
+                      type: object
+                      properties:
+                        start:
+                          type: string
+                          description: Start datetime in exact YYYY-MM-DD HH:MM:SS format
+                        end:
+                          type: string
+                          description: End datetime in exact YYYY-MM-DD HH:MM:SS format
+                    api_names:
+                      type: array
+                      items:
+                        type: string
+                    keys:
+                      type: array
+                      items:
+                        type: string
+                    statuses:
+                      type: array
+                      items:
+                        enum:
+                          - INITIATED
+                          - SUCCESS
+                          - ERROR
+                        type: string
+                    request_models:
+                      type: array
+                      items:
+                        type: string
+                group_by:
+                  type: array
+                  items:
+                    enum:
+                      - date
+                      - hour
+                      - week
+                      - month
+                      - api_name
+                      - key
+                      - status
+                      - request_model
+                    type: string
+                  description: Optional list of fields to group the summary by.
+        required: true
+      responses:
+        '200':
+          description: Successful summary response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status_code:
+                    type: integer
+                  status_description:
+                    type: string
+                  error_message:
+                    type: string
+                  response_body:
+                    type: object
+      security:
+        - authorize_token_auth: [ ]
+components:
+  securitySchemes:
+    authorize_token_auth:
+      type: apiKey
+      description: Authentication token for the Bot IQ Core API
+      name: authorize_token
+      in: header
